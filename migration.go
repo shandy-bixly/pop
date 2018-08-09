@@ -1,28 +1,33 @@
 package pop
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
-	"github.com/gobuffalo/makr"
+	"github.com/gobuffalo/genny"
 	"github.com/pkg/errors"
 )
 
 // MigrationCreate writes contents for a given migration in normalized files
 func MigrationCreate(path, name, ext string, up, down []byte) error {
-	g := makr.New()
+	g := genny.New()
 	n := time.Now().UTC()
 	s := n.Format("20060102150405")
 
 	upf := filepath.Join(path, (fmt.Sprintf("%s_%s.up.%s", s, name, ext)))
-	g.Add(makr.NewFile(upf, string(up)))
+	g.File(genny.NewFile(upf, strings.NewReader(string(up))))
 
 	downf := filepath.Join(path, (fmt.Sprintf("%s_%s.down.%s", s, name, ext)))
-	g.Add(makr.NewFile(downf, string(down)))
+	g.File(genny.NewFile(downf, strings.NewReader(string(down))))
 
-	return g.Run(".", makr.Data{})
+	r := genny.WetRunner(context.Background())
+	r.With(g)
+
+	return r.Run()
 }
 
 // MigrateUp is deprecated, and will be removed in a future version. Use FileMigrator#Up instead.
