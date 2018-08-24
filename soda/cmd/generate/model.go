@@ -62,14 +62,14 @@ func (m model) Generate() error {
 func (m model) modelName() string {
 	x := strings.Split(m.Name.String(), "/")
 	for i, s := range x {
-		x[i] = flect.New(s).Singularize().Camelize().String()
+		x[i] = flect.New(s).Singularize().Pascalize().String()
 	}
 
 	return strings.Join(x, "")
 }
 
 func (m model) modelNamePlural() string {
-	return flect.New(m.modelName()).Pluralize().Camelize().String()
+	return flect.New(m.modelName()).Pluralize().Pascalize().String()
 }
 
 func (m model) testPkgName() string {
