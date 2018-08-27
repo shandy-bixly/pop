@@ -2,6 +2,7 @@ package slices
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -37,6 +38,17 @@ func (i Int) Value() (driver.Value, error) {
 		sa[x] = strconv.Itoa(v)
 	}
 	return fmt.Sprintf("{%s}", strings.Join(sa, ",")), nil
+}
+
+// UnmarshalJSON will unmarshall JSON value into
+// the string slice representation of this value.
+func (i *Int) UnmarshalJSON(data []byte) error {
+	ii := []int{}
+	if err := json.Unmarshal(data, &ii); err != nil {
+		return err
+	}
+	(*i) = Int(ii)
+	return nil
 }
 
 // UnmarshalText will unmarshall text value into
